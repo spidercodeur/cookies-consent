@@ -1,2 +1,5 @@
 # cookies-consent
-Exemple cookies consent Nextjs
+
+Exemple de cookies consent Nextjs tailwind
+
+![Aperçu du CV ](/public/images/thumbnail.jpeg)
