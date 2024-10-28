@@ -40,7 +40,7 @@ interface CookiesProviderProps {
 export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 	children,
 }) => {
-	const [isConsentBannerVisible, setIsConsentBannerVisible] = useState(false);
+	const [isConsentBannerVisible, setIsConsentBannerVisible] = useState(true);
 	const [cookiePreferences, setCookiePreferences] =
 		useState<CookiePreferences>(DEFAULT_PREFERENCES);
 
