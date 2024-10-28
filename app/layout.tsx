@@ -4,6 +4,7 @@ import "./globals.css";
 
 import ClientCookieProvider from "@/app/components/ClientCookieProvider";
 import { CookiesProvider } from "@/app/context/CookiesContext";
+import CookieBanner from "./components/CookieBanner";
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
 	variable: "--font-geist-sans",
@@ -26,12 +27,15 @@ export default function RootLayout({
 	children: React.ReactNode;
 }>) {
 	return (
-		<html lang="en">
+		<html lang="fr">
 			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+				className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-100`}
 			>
 				<CookiesProvider>
-					<ClientCookieProvider>{children}</ClientCookieProvider>
+					<ClientCookieProvider>
+						{children}
+						<CookieBanner />
+					</ClientCookieProvider>
 				</CookiesProvider>
 			</body>
 		</html>

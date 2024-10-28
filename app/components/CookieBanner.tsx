@@ -1,6 +1,8 @@
 "use client";
 // components/CookieBanner.tsx
+import React from "react";
 import { useCookies } from "../context/CookiesContext";
+import { useState } from "react";
 
 const CookieBanner: React.FC = () => {
 	const {
@@ -10,111 +12,143 @@ const CookieBanner: React.FC = () => {
 		isConsentBannerVisible,
 	} = useCookies();
 
-	const handleSavePreferences = () => {
-		savePreferences({ ...cookiePreferences, essential: true });
-		setIsConsentBannerVisible(false);
-		console.log("Preferences saved, hiding banner");
+	const [showSettings, setShowSettings] = useState(false);
+
+	if (!isConsentBannerVisible) return null;
+
+	const updatePreferences = (
+		category: keyof typeof cookiePreferences,
+		serviceName: string
+	) => {
+		const updatedPreferences = { ...cookiePreferences };
+		const service = updatedPreferences[category].find(
+			(s) => s.name === serviceName
+		);
+		if (service) {
+			service.enabled = !service.enabled;
+			savePreferences(updatedPreferences);
+		}
 	};
 
-	const handleAcceptAll = () => {
-		savePreferences({ essential: true, analytics: true, marketing: true });
+	const handleAllPreferences = (enable: boolean) => {
+		const updatedPreferences = { ...cookiePreferences };
+		Object.keys(updatedPreferences).forEach((category) => {
+			const services =
+				updatedPreferences[category as keyof typeof cookiePreferences];
+			if (Array.isArray(services)) {
+				services.forEach((service) => {
+					if (service.id !== 0) {
+						service.enabled = enable;
+					}
+				});
+			}
+		});
+		savePreferences(updatedPreferences);
 		setIsConsentBannerVisible(false);
 	};
 
-	const reopenCookieBanner = () => {
-		setIsConsentBannerVisible(true);
-	};
+	const ServiceToggle = ({
+		service,
+		category,
+	}: {
+		service: { id: number; name: string; enabled: boolean };
+		category: keyof typeof cookiePreferences;
+	}) => (
+		<div className="flex items-center justify-between pl-2 w-full">
+			<span className="text-sm pr-3 whitespace-nowrap">
+				- {service.name}
+				{service.id === 0 && <span className="text-xs">(Essentiel)</span>}
+			</span>
+			<label className="relative inline-flex cursor-pointer items-center">
+				<input
+					type="checkbox"
+					checked={service.id === 0 ? true : service.enabled}
+					onChange={() => updatePreferences(category, service.name)}
+					className="peer sr-only"
+				/>
+				<div
+					className={`peer h-4 w-8 rounded-full bg-slate-400 after:absolute after:left-[4px] after:top-0.5 after:h-3 after:w-3 after:rounded-full after:bg-white after:transition-all ${
+						service.id === 0
+							? "peer-checked:bg-slate-300"
+							: "peer-checked:bg-slate-600"
+					} peer-checked:after:translate-x-full`}
+				></div>
+			</label>
+		</div>
+	);
+
 	return (
-		<>
-			{isConsentBannerVisible && (
-				<div className="fixed m-auto max-w-screen-md bottom-0 left-0 right-0 rounded-t-2xl bg-gray-100 shadow-lg p-4 flex flex-col gap-4 border-t">
-					<h2 className="text-lg font-semibold">Préférences de cookies</h2>
-					<p>
-						Nous utilisons des cookies pour optimiser notre site web et
-						notre service.
-					</p>
-
-					<div className="flex items-center justify-between">
-						<span>Cookies essentiels</span>
-						<label className="relative inline-flex cursor-pointer items-center">
-							<input
-								type="checkbox"
-								checked
-								disabled
-								className="peer sr-only"
-							/>
-							<div className="peer h-6 w-11 rounded-full bg-slate-300 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-slate-400 peer-checked:after:translate-x-full"></div>
-						</label>{" "}
-					</div>
-
-					<div className="flex items-center justify-between">
-						<span>Cookies analytiques</span>
-						<label className="relative inline-flex cursor-pointer items-center">
-							<input
-								type="checkbox"
-								checked={cookiePreferences.analytics}
-								onChange={() =>
-									savePreferences({
-										...cookiePreferences,
-										analytics: !cookiePreferences.analytics,
-									})
-								}
-								className="peer sr-only"
-							/>
-							<div className="peer h-6 w-11 rounded-full bg-slate-300 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-slate-800 peer-checked:after:translate-x-full"></div>
-						</label>
-					</div>
-
-					<div className="flex items-center justify-between">
-						<span>Cookies marketing</span>
-						<label className="relative inline-flex cursor-pointer items-center">
-							<input
-								type="checkbox"
-								checked={cookiePreferences.marketing}
-								onChange={() =>
-									savePreferences({
-										...cookiePreferences,
-										marketing: !cookiePreferences.marketing,
-									})
-								}
-								className="peer sr-only"
-							/>
-							<div className="peer h-6 w-11 rounded-full bg-slate-300 after:absolute after:left-[2px] after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all peer-checked:bg-slate-800 peer-checked:after:translate-x-full"></div>
-						</label>
-					</div>
-
-					<div className="flex justify-end gap-2">
-						<button
-							onClick={handleSavePreferences}
-							className="bg-gray-300 py-1 px-3 rounded"
-						>
-							Enregistrer
-						</button>
-						<button
-							onClick={() => handleAcceptAll()}
-							className="bg-blue-500 text-white py-1 px-3 rounded"
-						>
-							Tout accepter
-						</button>
-					</div>
+		<div
+			id="cookie-banner"
+			className="fixed bottom-0 left-0 right-0 z-50 max-w-screen-sm bg-white border-t border-gray-100 shadow-lg p-4 rounded-t-xl m-auto"
+		>
+			<h2 className="text-xl font-semibold flex items-center justify-start">
+				<span className="text-5xl pr-5">🍪</span> Préférences de cookies
+			</h2>
+			<p className="mb-3">
+				Nous utilisons des cookies pour optimiser notre site web et notre
+				service.
+			</p>
+			{showSettings && (
+				<div className="w-full mt-2 items-end bottom-0 justify-center md:grid md:grid-cols-2 gap-2">
+					{Object.entries(cookiePreferences).map(
+						([category, services]) => (
+							<div
+								key={category}
+								className="mb-2 w-full bg-slate-50 rounded-2xl p-2"
+							>
+								<h3 className="text-sm font-semibold capitalize">
+									{category}
+								</h3>
+								{services.map(
+									(service: {
+										id: number;
+										name: string;
+										enabled: boolean;
+									}) => (
+										<ServiceToggle
+											key={service.name}
+											service={service}
+											category={
+												category as keyof typeof cookiePreferences
+											}
+										/>
+									)
+								)}
+							</div>
+						)
+					)}
 				</div>
 			)}
-			{/* Lien pour rouvrir la bannière */}
-			<div>
+			<div className="flex justify-end gap-2 mt-4">
+				{showSettings && (
+					<button
+						onClick={() => setIsConsentBannerVisible(false)}
+						className="bg-gray-300 py-1 px-3 rounded-full"
+					>
+						Sauvegarder
+					</button>
+				)}
 				<button
-					className="rounded-full border border-solid border-black/[.08] py-1 px-3 w-48"
-					onClick={() =>
-						isConsentBannerVisible
-							? setIsConsentBannerVisible(false)
-							: reopenCookieBanner()
-					}
+					onClick={() => setShowSettings(!showSettings)}
+					className="bg-gray-300 py-1 px-3 rounded-full"
 				>
-					{isConsentBannerVisible
-						? "Fermer la bannière"
-						: "Ouvrir la bannière"}
+					Paramètres
+				</button>
+				<button
+					onClick={() => handleAllPreferences(false)}
+					className="bg-gray-700 text-white py-1 px-3 rounded-full"
+				>
+					Refuser
+				</button>
+				<button
+					onClick={() => handleAllPreferences(true)}
+					className="bg-gray-700 text-white py-1 px-3 rounded-full"
+				>
+					Tout accepter
 				</button>
 			</div>
-		</>
+		</div>
 	);
 };
 
