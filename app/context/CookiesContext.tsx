@@ -55,7 +55,7 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 	children,
 }) => {
 	const [isLoading, setIsLoading] = useState(true);
-	const [isConsentBannerVisible, setIsConsentBannerVisible] = useState(true);
+	const [isConsentBannerVisible, setIsConsentBannerVisible] = useState(false);
 	const [cookiePreferences, setCookiePreferences] =
 		useState<CookiePreferences>(DEFAULT_PREFERENCES);
 
@@ -64,6 +64,9 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 			const savedPreferences = localStorage.getItem("cookiePreferences");
 			if (savedPreferences) {
 				setCookiePreferences(JSON.parse(savedPreferences));
+				setIsConsentBannerVisible(false); // On cache la bannière si des préférences existent
+			} else {
+				setIsConsentBannerVisible(true); // On montre la bannière uniquement si pas de préférences
 			}
 			setIsLoading(false);
 		};
