@@ -16,7 +16,7 @@ const YoutubeComponent: React.FC = () => {
 	return (
 		<>
 			{!isServiceEnabled(3) ? (
-				<div className="flex justify-center items-center w-[560px] h-[315px] relative">
+				<div className="flex justify-center items-center w-fit h-[315px] relative">
 					<Image
 						alt="youtube"
 						fill
