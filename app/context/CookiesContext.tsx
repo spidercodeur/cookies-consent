@@ -47,6 +47,58 @@ const DEFAULT_PREFERENCES: CookiePreferences = {
 
 const CookiesContext = createContext<CookiesContextType | undefined>(undefined);
 
+const COOKIE_NAME = "cookiePreferences";
+const COOKIE_MAX_AGE = 365 * 24 * 60 * 60; // 365 jours en secondes
+
+const getStoredPreferences = (): CookiePreferences | null => {
+	try {
+		// Essayer d'abord localStorage
+		const localPrefs = localStorage.getItem(COOKIE_NAME);
+		if (localPrefs) {
+			return JSON.parse(localPrefs);
+		}
+	} catch (error) {
+		console.warn("Impossible d'accéder au localStorage:", error);
+	}
+
+	try {
+		// Fallback sur les cookies
+		const cookieStore = document.cookie;
+		const cookieValue = cookieStore
+			.split("; ")
+			.find((row) => row.startsWith(COOKIE_NAME))
+			?.split("=")[1];
+
+		if (cookieValue) {
+			return JSON.parse(decodeURIComponent(cookieValue));
+		}
+	} catch (error) {
+		console.warn("Impossible d'accéder aux cookies:", error);
+	}
+
+	return null;
+};
+
+const setStoredPreferences = (preferences: CookiePreferences): void => {
+	try {
+		// Essayer d'abord localStorage
+		localStorage.setItem(COOKIE_NAME, JSON.stringify(preferences));
+	} catch (error) {
+		console.warn("Impossible de sauvegarder dans localStorage:", error);
+		try {
+			// Fallback sur les cookies
+			document.cookie = `${COOKIE_NAME}=${encodeURIComponent(
+				JSON.stringify(preferences)
+			)}; max-age=${COOKIE_MAX_AGE}; path=/; samesite=strict`;
+		} catch (cookieError) {
+			console.error(
+				"Impossible de sauvegarder les préférences:",
+				cookieError
+			);
+		}
+	}
+};
+
 interface CookiesProviderProps {
 	children: ReactNode;
 }
@@ -61,9 +113,9 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 
 	useEffect(() => {
 		const loadPreferences = () => {
-			const savedPreferences = localStorage.getItem("cookiePreferences");
-			if (savedPreferences) {
-				setCookiePreferences(JSON.parse(savedPreferences));
+			const storedPreferences = getStoredPreferences();
+			if (storedPreferences) {
+				setCookiePreferences(storedPreferences);
 				setIsConsentBannerVisible(false); // On cache la bannière si des préférences existent
 			} else {
 				setIsConsentBannerVisible(true); // On montre la bannière uniquement si pas de préférences
@@ -76,7 +128,7 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 
 	const savePreferences = (preferences: CookiePreferences) => {
 		setCookiePreferences(preferences);
-		localStorage.setItem("cookiePreferences", JSON.stringify(preferences));
+		setStoredPreferences(preferences);
 		setIsConsentBannerVisible(false);
 	};
 
