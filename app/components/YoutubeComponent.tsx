@@ -53,7 +53,7 @@ const YoutubeComponent: React.FC = () => {
 					height="315"
 					src="https://www.youtube-nocookie.com/embed/gfU1iZnjRZM?si=rcErTfPeKrdWm8YY"
 					title="YouTube video player"
-					frameBorder="0"
+					className="max-w-full"
 					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
 					referrerPolicy="strict-origin-when-cross-origin"
 					allowFullScreen

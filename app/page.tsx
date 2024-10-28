@@ -11,53 +11,25 @@ export const metadata: Metadata = {
 		"Intégration de Cookies consentement avec Nextjs RGPD, avec gestion des services",
 };
 
-// Composant pour les liens du footer
-const FooterLink = ({
-	href,
-	icon,
-	text,
-}: {
-	href: string;
-	icon: string;
-	text: string;
-}) => (
-	<a
-		className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-		href={href}
-		target="_blank"
-		rel="noopener noreferrer"
-	>
-		<Image
-			aria-hidden
-			src={icon}
-			alt={`${text} icon`}
-			width={16}
-			height={16}
-		/>
-		{text}
-	</a>
-);
-
 // Composant pour les exemples de code
 const CodeExample = ({ title, code }: { title: string; code: string }) => (
 	<div className="mt-6">
 		<b>{title}</b>
 		<pre className="text-sm bg-slate-200 p-3 mb-4 w-fit">
-			<code>{code}</code>
+			<code className="whitespace-break-spaces">{code}</code>
 		</pre>
 	</div>
 );
 
 export default function Home() {
 	return (
-		<div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-			<main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-				<div className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)] w-90">
+		<div className="max-w-full">
+			<main className="">
+				<div className="max-w-screen-md mx-auto p-3 text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)] w-90">
 					<p className="text-lg">Démo intégration</p>
 					<h1 className="text-3xl font-bold">
 						Gestion cookies avec{" "}
 						<Image
-							className="dark:invert"
 							src="/next.svg"
 							alt="Next.js logo"
 							width={180}
@@ -112,22 +84,11 @@ export default function Home() {
 				<div className="flex gap-4 items-center flex-col sm:flex-row w-full"></div>
 			</main>
 
-			<footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-				<FooterLink
-					href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					icon="/file.svg"
-					text="Learn"
-				/>
-				<FooterLink
-					href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					icon="/window.svg"
-					text="Examples"
-				/>
-				<FooterLink
-					href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-					icon="/globe.svg"
-					text="Go to nextjs.org →"
-				/>
+			<footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center py-20">
+				<Link href="https://github.com/spidercodeur/cookies-consent">
+					Github source{" "}
+				</Link>
+				|
 				<LinkCookies text="Gestion des cookies" />
 			</footer>
 		</div>
