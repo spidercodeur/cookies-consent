@@ -120,7 +120,7 @@ const CookieBanner: React.FC = () => {
 				</div>
 			)}
 			<div className="flex justify-end gap-2 mt-4">
-				{showSettings && (
+				{showSettings ? (
 					<button
 						onClick={() => {
 							savePreferences(cookiePreferences); // Ajout de la sauvegarde
@@ -130,13 +130,14 @@ const CookieBanner: React.FC = () => {
 					>
 						Sauvegarder
 					</button>
+				) : (
+					<button
+						onClick={() => setShowSettings(!showSettings)}
+						className="bg-gray-300 py-1 px-3 rounded-full"
+					>
+						Paramètres
+					</button>
 				)}
-				<button
-					onClick={() => setShowSettings(!showSettings)}
-					className="bg-gray-300 py-1 px-3 rounded-full"
-				>
-					Paramètres
-				</button>
 				<button
 					onClick={() => handleAllPreferences(false)}
 					className="bg-gray-700 text-white py-1 px-3 rounded-full"

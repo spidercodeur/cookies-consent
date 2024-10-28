@@ -25,7 +25,7 @@ export default function Home() {
 	return (
 		<div className="max-w-full">
 			<main className="">
-				<div className="max-w-screen-md mx-auto p-3 text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)] w-90">
+				<div className="max-w-screen-md mx-auto p-3 text-sm  sm:text-left font-[family-name:var(--font-geist-mono)] w-90">
 					<p className="text-lg">Démo intégration</p>
 					<h1 className="text-3xl font-bold">
 						Gestion cookies avec{" "}
@@ -35,6 +35,7 @@ export default function Home() {
 							width={180}
 							height={38}
 							priority
+							className=" mt-3"
 						/>
 					</h1>
 					<p className="text-base my-5">
