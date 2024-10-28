@@ -18,8 +18,4 @@ pnpm dev
 
 ## Voir le rendu
 
-http://localhost:3000/
-
-```
-
-```
+https://cookies-consent-nextjs.vercel.app
