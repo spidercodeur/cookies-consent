@@ -33,7 +33,6 @@ interface CookiesContextType {
 	setCookiePreferences: React.Dispatch<
 		React.SetStateAction<CookiePreferences>
 	>;
-	getStoredPreferences: () => CookiePreferences | null;
 }
 
 // Valeurs par défaut des préférences de cookies
@@ -151,7 +150,6 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 		isServiceEnabled,
 		setServiceEnabled,
 		setCookiePreferences,
-		getStoredPreferences, // Ajout de cette ligne
 	};
 
 	return (
