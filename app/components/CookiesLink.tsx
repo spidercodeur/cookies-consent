@@ -13,7 +13,7 @@ const CookiesLink: React.FC<LinkCookiesProps> = ({
 	className = "",
 	...props
 }) => {
-	const { setIsConsentBannerVisible, isConsentBannerVisible } = useCookies();
+	const { setIsConsentBannerVisible } = useCookies();
 
 	return (
 		<button
