@@ -80,10 +80,7 @@ const CookieBanner: React.FC = () => {
 	);
 
 	return (
-		<div
-			id="cookie-banner"
-			className="fixed bottom-0 left-0 right-0 z-50 max-w-screen-sm bg-white border-t border-gray-100 shadow-lg p-4 rounded-t-xl m-auto"
-		>
+		<div className="fixed bottom-0 left-0 right-0 z-50 max-w-screen-sm bg-white border-t border-gray-100 shadow-lg p-4 rounded-t-xl m-auto">
 			<h2 className="text-xl font-semibold flex items-center justify-start">
 				<span className="text-5xl pr-5">🍪</span> Préférences de cookies
 			</h2>
