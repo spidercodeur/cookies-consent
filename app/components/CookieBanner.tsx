@@ -125,7 +125,10 @@ const CookieBanner: React.FC = () => {
 			<div className="flex justify-end gap-2 mt-4">
 				{showSettings && (
 					<button
-						onClick={() => setIsConsentBannerVisible(false)}
+						onClick={() => {
+							savePreferences(cookiePreferences); // Ajout de la sauvegarde
+							setIsConsentBannerVisible(false);
+						}}
 						className="bg-gray-300 py-1 px-3 rounded-full"
 					>
 						Sauvegarder
