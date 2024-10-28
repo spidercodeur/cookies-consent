@@ -13,7 +13,7 @@ const CookiesLink: React.FC<LinkCookiesProps> = ({
 	className = "",
 	...props
 }) => {
-	const { isConsentBannerVisible, setIsConsentBannerVisible } = useCookies();
+	const { setIsConsentBannerVisible } = useCookies();
 
 	return (
 		<>
@@ -22,7 +22,7 @@ const CookiesLink: React.FC<LinkCookiesProps> = ({
 				className={` ${className}`.trim()}
 				{...props}
 			>
-				{!isConsentBannerVisible ? text : "Masquer banniere cookies"}
+				{text}
 			</button>
 		</>
 	);

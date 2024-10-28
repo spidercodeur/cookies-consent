@@ -29,6 +29,9 @@ interface CookiesContextType {
 	setIsConsentBannerVisible: React.Dispatch<React.SetStateAction<boolean>>;
 	isConsentBannerVisible: boolean;
 	isServiceEnabled: (serviceId: number) => boolean;
+	setCookiePreferences: React.Dispatch<
+		React.SetStateAction<CookiePreferences>
+	>;
 }
 
 // Valeurs par défaut des préférences de cookies
@@ -52,32 +55,20 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 	children,
 }) => {
 	const [isLoading, setIsLoading] = useState(true);
-	const [isConsentBannerVisible, setIsConsentBannerVisible] = useState(false); // Initialisé à false
+	const [isConsentBannerVisible, setIsConsentBannerVisible] = useState(true);
 	const [cookiePreferences, setCookiePreferences] =
 		useState<CookiePreferences>(DEFAULT_PREFERENCES);
 
 	useEffect(() => {
 		const loadPreferences = () => {
-			try {
-				const savedPreferences = localStorage.getItem("cookiePreferences");
-				if (savedPreferences) {
-					setCookiePreferences(JSON.parse(savedPreferences));
-					setIsConsentBannerVisible(false);
-				} else {
-					// Si pas de préférences sauvegardées, afficher la bannière
-					setIsConsentBannerVisible(true);
-				}
-			} catch (error) {
-				console.error("Erreur lors du chargement des préférences:", error);
-			} finally {
-				setIsLoading(false);
+			const savedPreferences = localStorage.getItem("cookiePreferences");
+			if (savedPreferences) {
+				setCookiePreferences(JSON.parse(savedPreferences));
 			}
+			setIsLoading(false);
 		};
 
-		// Exécuter après le montage du composant
-		if (typeof window !== "undefined") {
-			loadPreferences();
-		}
+		loadPreferences();
 	}, []);
 
 	const savePreferences = (preferences: CookiePreferences) => {
@@ -102,6 +93,7 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 		setIsConsentBannerVisible,
 		isConsentBannerVisible,
 		isServiceEnabled,
+		setCookiePreferences,
 	};
 
 	return (

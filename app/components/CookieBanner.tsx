@@ -10,6 +10,7 @@ const CookieBanner: React.FC = () => {
 		savePreferences,
 		setIsConsentBannerVisible,
 		isConsentBannerVisible,
+		setCookiePreferences,
 	} = useCookies();
 
 	const [showSettings, setShowSettings] = useState(false);
@@ -26,7 +27,8 @@ const CookieBanner: React.FC = () => {
 		);
 		if (service) {
 			service.enabled = !service.enabled;
-			savePreferences(updatedPreferences);
+			// On met juste à jour l'état local sans sauvegarder
+			setCookiePreferences(updatedPreferences);
 		}
 	};
 
