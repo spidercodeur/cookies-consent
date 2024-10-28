@@ -29,6 +29,7 @@ interface CookiesContextType {
 	setIsConsentBannerVisible: React.Dispatch<React.SetStateAction<boolean>>;
 	isConsentBannerVisible: boolean;
 	isServiceEnabled: (serviceId: number) => boolean;
+	setServiceEnabled: (serviceId: number, enabled: boolean) => void;
 	setCookiePreferences: React.Dispatch<
 		React.SetStateAction<CookiePreferences>
 	>;
@@ -143,6 +144,21 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 			)
 		);
 	};
+	const setServiceEnabled = (serviceId: number, enabled: boolean) => {
+		setCookiePreferences((prev) => {
+			const newPreferences = Object.fromEntries(
+				Object.entries(prev).map(([category, services]) => [
+					category,
+					services.map((service: CookieService) =>
+						service.id === serviceId ? { ...service, enabled } : service
+					),
+				])
+			) as CookiePreferences;
+
+			setStoredPreferences(newPreferences);
+			return newPreferences;
+		});
+	};
 
 	const contextValue: CookiesContextType = {
 		cookiePreferences,
@@ -151,6 +167,7 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 		setIsConsentBannerVisible,
 		isConsentBannerVisible,
 		isServiceEnabled,
+		setServiceEnabled,
 		setCookiePreferences,
 	};
 

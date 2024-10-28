@@ -3,12 +3,15 @@ import React from "react";
 import { useCookies } from "../context/CookiesContext";
 
 import Image from "next/image";
-import LinkCookies from "./CookiesLink";
 
 // exemple youtube component
 
 const YoutubeComponent: React.FC = () => {
-	const { isServiceEnabled } = useCookies();
+	const { isServiceEnabled, setServiceEnabled } = useCookies();
+
+	const handleShowVideo = () => {
+		setServiceEnabled(3, true);
+	};
 
 	return (
 		<>
@@ -21,10 +24,28 @@ const YoutubeComponent: React.FC = () => {
 						className="opacity-90 "
 						src="https://img.youtube.com/vi/gfU1iZnjRZM/0.jpg"
 					/>
-					<LinkCookies
-						text="Autorisation necessaire"
-						className="absolute z-2 text-white bg-black px-3 py-1 rounded-full"
-					/>
+
+					<div className="absolute m-auto bg-white/90 text-center p-2 rounded-lg">
+						<button
+							onClick={handleShowVideo}
+							className=" z-2 text-white bg-red-600 px-3 py-1 rounded-full"
+						>
+							▶ Voir la vidéo
+						</button>
+						<p className="max-w-80 p-2 text-xs">
+							En cliquant sur &quot;Voir la vidéo&quot;, vous acceptez
+							que YouTube puisse collecter certaines données
+							personnelles, comme décrit dans leur{" "}
+							<a
+								href="https://policies.google.com/privacy"
+								target="_blank"
+								rel="noopener noreferrer"
+								className="underline hover:text-blue-500"
+							>
+								politique de confidentialité.
+							</a>
+						</p>
+					</div>
 				</div>
 			) : (
 				<iframe
