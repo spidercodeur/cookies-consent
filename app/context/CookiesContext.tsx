@@ -116,9 +116,12 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 			const storedPreferences = getStoredPreferences();
 			if (storedPreferences) {
 				setCookiePreferences(storedPreferences);
-				setIsConsentBannerVisible(false); // On cache la bannière si des préférences existent
+				setIsConsentBannerVisible(false);
 			} else {
-				setIsConsentBannerVisible(true); // On montre la bannière uniquement si pas de préférences
+				// Ajout d'un délai pour contourner l'auto-consent
+				setTimeout(() => {
+					setIsConsentBannerVisible(true);
+				}, 100);
 			}
 			setIsLoading(false);
 		};
