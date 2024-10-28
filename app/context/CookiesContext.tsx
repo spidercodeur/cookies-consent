@@ -33,6 +33,7 @@ interface CookiesContextType {
 	setCookiePreferences: React.Dispatch<
 		React.SetStateAction<CookiePreferences>
 	>;
+	getStoredPreferences: () => CookiePreferences | null;
 }
 
 // Valeurs par défaut des préférences de cookies
@@ -53,31 +54,12 @@ const COOKIE_MAX_AGE = 365 * 24 * 60 * 60; // 365 jours en secondes
 
 const getStoredPreferences = (): CookiePreferences | null => {
 	try {
-		// Essayer d'abord localStorage
 		const localPrefs = localStorage.getItem(COOKIE_NAME);
-		if (localPrefs) {
-			return JSON.parse(localPrefs);
-		}
+		return localPrefs ? JSON.parse(localPrefs) : null;
 	} catch (error) {
-		console.warn("Impossible d'accéder au localStorage:", error);
+		console.warn("Erreur lors de l'accès aux préférences:", error);
+		return null;
 	}
-
-	try {
-		// Fallback sur les cookies
-		const cookieStore = document.cookie;
-		const cookieValue = cookieStore
-			.split("; ")
-			.find((row) => row.startsWith(COOKIE_NAME))
-			?.split("=")[1];
-
-		if (cookieValue) {
-			return JSON.parse(decodeURIComponent(cookieValue));
-		}
-	} catch (error) {
-		console.warn("Impossible d'accéder aux cookies:", error);
-	}
-
-	return null;
 };
 
 const setStoredPreferences = (preferences: CookiePreferences): void => {
@@ -169,6 +151,7 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 		isServiceEnabled,
 		setServiceEnabled,
 		setCookiePreferences,
+		getStoredPreferences, // Ajout de cette ligne
 	};
 
 	return (
