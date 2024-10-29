@@ -9,6 +9,7 @@ import React, {
 	useEffect,
 	useState,
 } from "react";
+import { isBot } from "@/app/components/CookiesConsent/constants/botDetection";
 
 interface CookieService {
 	readonly id: number;
@@ -36,17 +37,6 @@ const CookiesContext = createContext<CookiesContextType | undefined>(undefined);
 interface CookiesProviderProps {
 	children: ReactNode;
 }
-
-const isBot = (): boolean => {
-	const botPattern =
-		/bot|crawler|spider|crawling|lighthouse|pagespeed|gtmetrix|googlebot|baiduspider|yandexbot|bingbot|facebookexternalhit/i;
-	return (
-		typeof window !== "undefined" &&
-		(botPattern.test(navigator.userAgent) ||
-			// Détection supplémentaire pour Google PageSpeed Insights
-			/Chrome-Lighthouse|PageSpeed|GTmetrix/.test(navigator.userAgent))
-	);
-};
 
 export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 	children,

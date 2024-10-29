@@ -9,6 +9,7 @@ import React, {
 	useEffect,
 	useState,
 } from "react";
+import { isBot } from "@/app/components/CookiesConsent/constants/botDetection";
 
 // Types
 interface CookieService {
@@ -102,6 +103,28 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 
 	useEffect(() => {
 		const loadPreferences = () => {
+			// Vérifier d'abord si c'est un bot
+			if (isBot()) {
+				const botPreferences = Object.fromEntries(
+					Object.entries(DEFAULT_PREFERENCES).map(
+						([category, services]) => [
+							category,
+							services.map((service: CookieService) => ({
+								...service,
+								enabled: true,
+							})),
+						]
+					)
+				) as CookiePreferences;
+
+				setCookiePreferences(botPreferences);
+				StorageUtils.set(botPreferences);
+				setIsConsentBannerVisible(false);
+				setIsLoading(false);
+				return;
+			}
+
+			// Si ce n'est pas un bot, continuer avec le comportement normal
 			const storedPreferences = StorageUtils.get();
 			if (storedPreferences) {
 				setCookiePreferences(storedPreferences);
