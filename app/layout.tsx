@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-import ClientCookieProvider from "@/app/components/ClientCookieProvider";
+import ClientCookieProvider from "@/app/components/CookiesConsent/ClientCookieProvider";
 import { CookiesProvider } from "@/app/context/CookiesContext";
-import CookieBanner from "./components/CookieBanner";
+import CookieBanner from "./components/CookiesConsent/CookieBanner";
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
 	variable: "--font-geist-sans",

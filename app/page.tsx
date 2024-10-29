@@ -1,5 +1,5 @@
 import Image from "next/image";
-import LinkCookies from "./components/CookiesLink";
+import CookiesLink from "./components/CookiesConsent/CookiesLink";
 import AnalyticsComponent from "./components/AnalyticsComponent";
 import YoutubeComponent from "./components/YoutubeComponent";
 import Link from "next/link";
@@ -71,7 +71,7 @@ export default function Home() {
 						code={`<LinkCookies text="Gestion des cookies" />`}
 					/>
 					<b>Rendu :</b>
-					<LinkCookies
+					<CookiesLink
 						text="Gestion des cookies"
 						className="underline"
 					/>
@@ -90,7 +90,7 @@ export default function Home() {
 					Github source{" "}
 				</Link>
 				|
-				<LinkCookies text="Gestion des cookies" />
+				<CookiesLink text="Gestion des cookies" />
 			</footer>
 		</div>
 	);

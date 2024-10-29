@@ -1,7 +1,7 @@
 "use client";
 // components/CookieBanner.tsx
 import React from "react";
-import { useCookies } from "../context/CookiesContext";
+import { useCookies } from "../../context/CookiesContext";
 
 interface LinkCookiesProps
 	extends React.ButtonHTMLAttributes<HTMLButtonElement> {

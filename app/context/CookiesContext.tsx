@@ -1,14 +1,16 @@
 // context/CookiesContext.tsx
 "use client";
 
+import { INITIAL_PREFERENCES } from "@/app/components/CookiesConsent/constants/cookieDefaults";
 import React, {
 	createContext,
-	useContext,
-	useState,
-	useEffect,
 	ReactNode,
+	useContext,
+	useEffect,
+	useState,
 } from "react";
 
+// Types
 interface CookieService {
 	id: number;
 	name: string;
@@ -24,7 +26,7 @@ interface CookiePreferences {
 
 interface CookiesContextType {
 	cookiePreferences: CookiePreferences;
-	isLoading: boolean; // Ajout d'un état de chargement
+	isLoading: boolean;
 	savePreferences: (preferences: CookiePreferences) => void;
 	setIsConsentBannerVisible: React.Dispatch<React.SetStateAction<boolean>>;
 	isConsentBannerVisible: boolean;
@@ -35,52 +37,57 @@ interface CookiesContextType {
 	>;
 }
 
-// Valeurs par défaut des préférences de cookies
-const DEFAULT_PREFERENCES: CookiePreferences = {
-	essential: [{ id: 0, name: "Core", enabled: true }], // Les cookies essentiels sont toujours activés
-	analytics: [{ id: 1, name: "Google Analytics", enabled: false }],
-	marketing: [{ id: 2, name: "Facebook Pixel", enabled: false }],
-	functional: [
-		{ id: 3, name: "YouTube", enabled: false },
-		{ id: 4, name: "Facebook", enabled: false },
-	],
-};
+// Constants
+const COOKIE_NAME = "cookiePreferences";
+const COOKIE_MAX_AGE = 365 * 24 * 60 * 60;
+const DEFAULT_PREFERENCES: CookiePreferences = JSON.parse(
+	JSON.stringify(INITIAL_PREFERENCES)
+);
 
+// Context
 const CookiesContext = createContext<CookiesContextType | undefined>(undefined);
 
-const COOKIE_NAME = "cookiePreferences";
-const COOKIE_MAX_AGE = 365 * 24 * 60 * 60; // 365 jours en secondes
-
-const getStoredPreferences = (): CookiePreferences | null => {
-	try {
-		const localPrefs = localStorage.getItem(COOKIE_NAME);
-		return localPrefs ? JSON.parse(localPrefs) : null;
-	} catch (error) {
-		console.warn("Erreur lors de l'accès aux préférences:", error);
-		return null;
-	}
+// Storage utilities
+const getCookie = (name: string): string | null => {
+	const value = `; ${document.cookie}`;
+	const parts = value.split(`; ${name}=`);
+	if (parts.length === 2)
+		return decodeURIComponent(parts.pop()?.split(";").shift() || "");
+	return null;
 };
 
-const setStoredPreferences = (preferences: CookiePreferences): void => {
-	try {
-		// Essayer d'abord localStorage
-		localStorage.setItem(COOKIE_NAME, JSON.stringify(preferences));
-	} catch (error) {
-		console.warn("Impossible de sauvegarder dans localStorage:", error);
+const StorageUtils = {
+	get: (): CookiePreferences | null => {
 		try {
-			// Fallback sur les cookies
+			const cookieValue = getCookie(COOKIE_NAME);
+			return cookieValue ? JSON.parse(cookieValue) : null;
+		} catch (error) {
+			console.warn("Erreur lors de l'accès aux préférences:", error);
+			return null;
+		}
+	},
+
+	set: (preferences: CookiePreferences): void => {
+		try {
 			document.cookie = `${COOKIE_NAME}=${encodeURIComponent(
 				JSON.stringify(preferences)
 			)}; max-age=${COOKIE_MAX_AGE}; path=/; samesite=strict`;
-		} catch (cookieError) {
-			console.error(
-				"Impossible de sauvegarder les préférences:",
-				cookieError
-			);
+		} catch (error) {
+			console.error("Impossible de sauvegarder les préférences:", error);
 		}
-	}
+	},
+
+	clear: (): void => {
+		try {
+			document.cookie = `${COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname}`;
+			document.cookie = `${COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+		} catch (error) {
+			console.warn("Erreur lors du nettoyage des préférences:", error);
+		}
+	},
 };
 
+// Provider Component
 interface CookiesProviderProps {
 	children: ReactNode;
 }
@@ -95,15 +102,12 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 
 	useEffect(() => {
 		const loadPreferences = () => {
-			const storedPreferences = getStoredPreferences();
+			const storedPreferences = StorageUtils.get();
 			if (storedPreferences) {
 				setCookiePreferences(storedPreferences);
 				setIsConsentBannerVisible(false);
 			} else {
-				// Ajout d'un délai pour contourner l'auto-consent
-				setTimeout(() => {
-					setIsConsentBannerVisible(true);
-				}, 100);
+				setTimeout(() => setIsConsentBannerVisible(true), 100);
 			}
 			setIsLoading(false);
 		};
@@ -112,9 +116,10 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 	}, []);
 
 	const savePreferences = (preferences: CookiePreferences) => {
+		StorageUtils.clear();
 		setCookiePreferences(preferences);
-		setStoredPreferences(preferences);
-		setIsConsentBannerVisible(false);
+		StorageUtils.set(preferences);
+		setTimeout(() => setIsConsentBannerVisible(false), 400);
 	};
 
 	const isServiceEnabled = (serviceId: number): boolean => {
@@ -125,6 +130,7 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 			)
 		);
 	};
+
 	const setServiceEnabled = (serviceId: number, enabled: boolean) => {
 		setCookiePreferences((prev) => {
 			const newPreferences = Object.fromEntries(
@@ -136,7 +142,7 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 				])
 			) as CookiePreferences;
 
-			setStoredPreferences(newPreferences);
+			StorageUtils.set(newPreferences);
 			return newPreferences;
 		});
 	};
@@ -159,6 +165,7 @@ export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 	);
 };
 
+// Hook
 export const useCookies = (): CookiesContextType => {
 	const context = useContext(CookiesContext);
 	if (!context) {

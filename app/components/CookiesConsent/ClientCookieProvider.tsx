@@ -1,14 +1,14 @@
 // context/CookiesContext.tsx
 "use client";
 
+import { INITIAL_PREFERENCES } from "@/app/components/CookiesConsent/constants/cookieDefaults";
 import React, {
 	createContext,
-	useContext,
-	useState,
-	useEffect,
 	ReactNode,
+	useContext,
+	useEffect,
+	useState,
 } from "react";
-import { DEFAULT_PREFERENCES } from "@/app/constants/cookieDefaults";
 
 interface CookieService {
 	readonly id: number;
@@ -37,30 +37,65 @@ interface CookiesProviderProps {
 	children: ReactNode;
 }
 
+const isBot = (): boolean => {
+	const botPattern =
+		/bot|crawler|spider|crawling|lighthouse|pagespeed|gtmetrix|googlebot|baiduspider|yandexbot|bingbot|facebookexternalhit/i;
+	return (
+		typeof window !== "undefined" &&
+		(botPattern.test(navigator.userAgent) ||
+			// Détection supplémentaire pour Google PageSpeed Insights
+			/Chrome-Lighthouse|PageSpeed|GTmetrix/.test(navigator.userAgent))
+	);
+};
+
 export const CookiesProvider: React.FC<CookiesProviderProps> = ({
 	children,
 }) => {
 	const [isConsentBannerVisible, setIsConsentBannerVisible] = useState(false);
 	const [cookiePreferences, setCookiePreferences] =
-		useState<CookiePreferences>(DEFAULT_PREFERENCES);
+		useState<CookiePreferences>(INITIAL_PREFERENCES);
 
 	useEffect(() => {
-		const loadPreferences = () => {
-			const savedPreferences = localStorage.getItem("cookiePreferences");
-			if (savedPreferences) {
-				setCookiePreferences(JSON.parse(savedPreferences));
-				setIsConsentBannerVisible(false);
-			} else {
-				setIsConsentBannerVisible(true);
-			}
-		};
+		// Vérifier d'abord si c'est un bot avant tout traitement
+		if (isBot()) {
+			const botPreferences = Object.entries(INITIAL_PREFERENCES).reduce(
+				(acc, [category, services]) => ({
+					...acc,
+					[category as keyof CookiePreferences]: services.map(
+						(service) => ({
+							...service,
+							enabled: true,
+						})
+					),
+				}),
+				{} as CookiePreferences
+			);
+			savePreferences(botPreferences);
+			setIsConsentBannerVisible(false);
+			return;
+		}
 
-		loadPreferences();
+		// Si ce n'est pas un bot, continuer avec le comportement normal
+		const cookieValue = document.cookie
+			.split("; ")
+			.find((row) => row.startsWith("cookiePreferences="));
+
+		if (cookieValue) {
+			const preferences = JSON.parse(
+				decodeURIComponent(cookieValue.split("=")[1])
+			);
+			setCookiePreferences(preferences);
+			setIsConsentBannerVisible(false);
+		} else {
+			setIsConsentBannerVisible(true);
+		}
 	}, []);
 
 	const savePreferences = (preferences: CookiePreferences) => {
 		setCookiePreferences(preferences);
-		localStorage.setItem("cookiePreferences", JSON.stringify(preferences));
+		document.cookie = `cookiePreferences=${encodeURIComponent(
+			JSON.stringify(preferences)
+		)}; max-age=${365 * 24 * 60 * 60}; path=/; samesite=strict`;
 		setIsConsentBannerVisible(false);
 	};
 
